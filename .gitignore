@@ -1,0 +1,38 @@
+# Build output
+bin/
+obj/
+publish/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio / Rider
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# .NET
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Claude local settings (machine-specific permissions)
+.claude/settings.local.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local configuration / secrets (never commit)
+appsettings.local.json
+.env
+.env.*
+secrets.json
+*.pem
+*.key

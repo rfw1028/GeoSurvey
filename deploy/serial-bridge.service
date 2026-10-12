@@ -1,0 +1,21 @@
+[Unit]
+Description=Serial bridge — exposes /dev/ttyAMA0 as PTY /tmp/gps_pty for SurveyorDemo
+After=systemd-udev-settle.service
+Wants=systemd-udev-settle.service
+
+[Service]
+Type=simple
+User=pi
+Group=dialout
+ExecStart=/home/pi/groundtruth/serial_bridge.sh /dev/ttyAMA0 115200
+# Readiness gate: the start job is not complete (and units ordered After= us do not start)
+# until socat has actually created /tmp/gps_pty as a live char device.
+ExecStartPost=/bin/sh -c 'for i in $(seq 1 100); do [ -c /tmp/gps_pty ] && exit 0; sleep 0.1; done; echo "socat did not create /tmp/gps_pty within 10s"; exit 1'
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=serial-bridge
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,30 @@
+[Unit]
+Description=Surveyor RTK GPS app
+After=network-online.target serial-bridge.service
+Wants=network-online.target
+Requires=serial-bridge.service
+# Restart the app whenever the bridge is restarted, so it re-attaches to the fresh PTY.
+PartOf=serial-bridge.service
+StartLimitIntervalSec=120
+StartLimitBurst=20
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/groundtruth
+# Settings (API endpoints, owner email, ...) live outside the repo:
+EnvironmentFile=-/etc/surveyor/surveyor.env
+# Don't start the app until the GPS PTY is a live char device (not a missing/stale/dangling symlink).
+ExecStartPre=/bin/sh -c 'for i in $(seq 1 60); do [ -c /tmp/gps_pty ] && exit 0; sleep 0.5; done; echo "gps_pty not a live char device after 30s"; exit 1'
+ExecStart=/home/pi/groundtruth/SurveyorDemo
+# Always restart: the app exits 0 if it loses the PTY, which on-failure would not catch.
+Restart=always
+RestartSec=5
+TimeoutStopSec=15
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=surveyor
+
+[Install]
+WantedBy=multi-user.target
